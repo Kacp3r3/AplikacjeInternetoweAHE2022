@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Rejestracja
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <h1>Please create your account</h1>
+        <br>
+        {{ form.username.label() }}
+        {{ form.username(placeholder="User name") }}
+        <br>
+        {{ form.email_address.label() }}
+        {{ form.email_address(placeholder="User name") }}
+        <br>
+        {{ form.password1.label() }}
+        {{ form.password1(placeholder="User name") }}
+        <br>
+        {{ form.password2.label() }}
+        {{ form.password2(placeholder="User name") }}
+        <br>
+        {{ form.submit() }}
+    </form>
+</div>
+{% endblock %}
