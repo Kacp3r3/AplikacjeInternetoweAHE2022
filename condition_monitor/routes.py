@@ -1,10 +1,10 @@
-from flask import redirect, render_template, url_for
-from condition_monitor.forms import RegisterForm
+from flask import redirect, render_template, url_for, flash
+from condition_monitor.forms import RegisterForm, LoginForm
 from condition_monitor.models import Room, Access, User
 from condition_monitor import app
 from condition_monitor.models import DBConnection
 from condition_monitor.models import User
-
+from flask_login import login_user, logout_user, login_required, current_user
 db = DBConnection()
 
 @app.route("/")
@@ -14,6 +14,7 @@ def home_page():
 
 
 @app.route("/monitor")
+@login_required
 def monitor_page():
     rooms = db.getRoomsForUser(1)
     measurements = {}
@@ -23,6 +24,7 @@ def monitor_page():
     return render_template("monitor.html", measurements = measurements)
 
 @app.route("/monitor/<uid>")
+@login_required
 def monitor_page_user(uid):
     rooms = db.getRoomsForUser(uid)
     measurements = {}
@@ -34,6 +36,7 @@ def monitor_page_user(uid):
 
 
 @app.route("/tables")
+@login_required
 def tables_page():
     rooms = db.getRoomsForUser(1)
     measurements = {}
@@ -42,6 +45,7 @@ def tables_page():
     return render_template("tables.html", measurements = measurements)
 
 @app.route("/tables/<roomid>")
+@login_required
 def tables_page_room(roomid):
     room = db.getRoom(roomid)
     measurements = {}
@@ -57,13 +61,38 @@ def register_page():
     if form.validate_on_submit():
         user_to_create = User(username=form.username.data,
                               email=form.email_address.data,
-                              password_hash=form.password1.data)
+                              password=form.password1.data)
         db.session.add(user_to_create)
         db.session.commit()
+        login_user(user_to_create)
+        flash(f"Account created succesfully! You are now logged in as {user_to_create.username}", category = "success")
         return redirect(url_for('tables_page'))
 
     if form.errors != {}:
         for error in form.errors.values():
-            print(f"Error : {error}")
+            flash(f'There was an error with creating a user: {error}', category='danger')
             
     return render_template("register.html", form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    form = LoginForm()
+    if form.validate_on_submit():
+        attempted_user = User.query.filter_by(username=form.username.data).first()
+        if attempted_user and attempted_user.check_password_correction(
+                attempted_password=form.password.data
+        ):
+            login_user(attempted_user)
+            flash(f'Success! You are logged in as: {attempted_user.username}', category='success')
+            return redirect(url_for('monitor_page'))
+        else:
+            flash('Username and password are not match! Please try again', category='danger')
+
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout_page():
+    logout_user()
+    flash("You have been logged out!", category='info')
+    return redirect(url_for("home_page"))

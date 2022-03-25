@@ -1,7 +1,7 @@
 from condition_monitor.models import *
 import random
 import datetime
-
+import time
 class DBGenerator():
     def __init__(self):
         self.db = DBConnection()
@@ -10,7 +10,6 @@ class DBGenerator():
 
     def cleanDB(self):
         self.db._engine.drop_all()
-        self.db._session.commit()
         self.db._engine.create_all()
 
     def genDB(self):
@@ -24,7 +23,7 @@ class DBGenerator():
         for user in usernames:
             user = User(username=user, email=user+"@gmail.com", password_hash="###")
             self.users.append(user)
-            self.db._session.add(user)
+            self.db.session.add(user)
         self.db.flsuh()
 
     def genRooms(self):
@@ -36,7 +35,7 @@ class DBGenerator():
                     for j in [1,2,3,4]:
                         room = Room(name=letter+str(floor+1)+str(d)+str(j))
                         self.rooms.append(room)
-                        self.db._session.add(room)
+                        self.db.session.add(room)
         self.db.flsuh()
 
     def genAccesses(self):
@@ -46,7 +45,7 @@ class DBGenerator():
                 randomid = -1
                 while randomid in selected_ids:
                     randomid = self.rooms[random.randint(0, len(self.rooms)-1)].id
-                self.db._session.add(Access(user=user.id, room = randomid))
+                self.db.session.add(Access(userid=user.id, roomid = randomid))
         self.db.flsuh()
 
     def genMeasurements(self):
@@ -56,7 +55,7 @@ class DBGenerator():
         for room in self.rooms:
             time_curr = time_start
             while time_curr < time_now:
-                self.db._session.add(Measurement(room = room.id, temperature = int(random.gauss(15,10)), humidity = int(random.gauss(50,15)), timestamp = time_curr))
+                self.db.session.add(Measurement(roomid = room.id, temperature = int(random.gauss(15,10)), humidity = int(random.gauss(50,15)), timestamp = time_curr))
                 time_curr += datetime.timedelta(minutes=80)
         self.db.flsuh()
 
