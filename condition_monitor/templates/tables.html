@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}
+Monitor page
+{% endblock %}
+
+{% block content %}  
+<h1>Monitor page </h1>
+    <table class="table table-hover table-dark text-center">
+        <thead>
+            <tr>
+                <!-- Your Columns HERE -->
+                <th scope="col">Room</th>
+                <th scope="col">Temperature</th>
+                <th scope="col">Humidity</th>
+                <th scope="col">Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Your rows inside the table HERE: -->
+                {% for key, val in measurements.items() %}
+                {% for m in val %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ m.temperature }}</td>
+                    <td>{{ m.humidity }}</td>
+                    <td>{{ m.timestamp }}</td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+                
+        </tbody>
+    </table>
+{% endblock %}   

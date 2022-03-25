@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}
+Monitor page
+{% endblock %}
+
+{% block content %}  
+<div class = "text-center"><h1>Monitor page </h1></div>
+            <!-- Your rows inside the table HERE: -->
+            <div class ="container">
+                <div class="row">
+                {% set cnt = namespace(value=0) %}
+                {% for key, val in measurements.items() %}
+                    <div class="col-sm">
+                      <div class="card bg-success mb-3 text-center text-white" style="width: 18rem;">
+                          <div class="card-body">
+                            <h5 class="card-title">{{ key }}</h5>
+                            <p class="card-text">Temperature: <br> <b>{{ val.temperature }}</b> <br> Humidity: <br> <b>{{ val.humidity }}</b></p>
+                            <a href="#" class="card-link">Card link</a>
+                            <a href="#" class="card-link">Another link</a>
+                          </div>
+                      </div>
+                    </div>
+                    {% set cnt.value = cnt.value + 1 %}
+                {% endfor %}
+                {% if cnt.value%3 != 0 %}
+                <div class="col-sm">
+                </div>
+                {% endif %}
+                </div>
+            </div>
+{% endblock %}   
