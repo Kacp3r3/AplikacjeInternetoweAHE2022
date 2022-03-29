@@ -56,6 +56,9 @@ def tables_page_room(roomid):
 
 @app.route("/register", methods=['GET', 'POST'])
 def register_page():
+    if current_user.is_authenticated:
+        flash("You are already logged in", category = "danger")
+        return redirect(url_for('home_page'))
     form = RegisterForm()
     
     if form.validate_on_submit():
@@ -77,6 +80,9 @@ def register_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
+    if current_user.is_authenticated:
+        flash("You are already logged in", category = "danger")
+        return redirect(url_for('home_page'))
     form = LoginForm()
     if form.validate_on_submit():
         attempted_user = User.query.filter_by(username=form.username.data).first()
@@ -92,6 +98,7 @@ def login_page():
     return render_template('login.html', form=form)
 
 @app.route('/logout')
+@login_required
 def logout_page():
     logout_user()
     flash("You have been logged out!", category='info')

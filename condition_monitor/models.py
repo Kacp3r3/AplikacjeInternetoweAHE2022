@@ -28,15 +28,15 @@ class DBConnection(metaclass=Singleton):
         return self.session.query(Room).filter(Room.name == name).first()
 
     def getRoomsForUser(self, id):
-        access = self.session.query(Access).filter(Access.user == id).all()
-        ids = [acc.room for acc in access]
+        access = self.session.query(Access).filter(Access.userid == id).all()
+        ids = [acc.roomid for acc in access]
         return self.session.query(Room).filter(Room.id.in_(ids)).all()
 
     def getMeasurementsForRoom(self, id):
-        return self.session.query(Measurement).filter(Measurement.room == id).all()
+        return self.session.query(Measurement).filter(Measurement.roomid == id).all()
     
     def getLastMeasurementForRoom(self, id):
-        return self.session.query(Measurement).filter(Measurement.room == id).order_by(Measurement.timestamp).first()
+        return self.session.query(Measurement).filter(Measurement.roomid == id).order_by(Measurement.timestamp).first()
 
 class Room(db.Model):
     __tablename__ = "rooms"
@@ -44,12 +44,14 @@ class Room(db.Model):
     name = db.Column(db.String(10), unique=True, nullable=False)
     description = db.Column(db.String(100))
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(30), nullable = False, unique = True)
     email = db.Column(db.String(50), nullable = False, unique = True)
     password_hash = db.Column(db.String(60), nullable = False)
+    active = db.Column(db.Boolean(), nullable = False, default = True)
+
     @property
     def password(self):
         return self.password_hash
@@ -58,11 +60,15 @@ class User(db.Model):
     def password(self, plain_text_password):
         self.password_hash = bcrypt.generate_password_hash(plain_text_password).decode('utf-8')
 
+    # @property
+    # def is_active(self):
+    #     return self.active
+
     def check_password_correction(self, attempted_password):
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
 
-    def get_id(self):
-        return self.id
+    # def get_id(self):
+    #     return self.id
 
 class Access(db.Model):
     __tablename__ = "accesses"

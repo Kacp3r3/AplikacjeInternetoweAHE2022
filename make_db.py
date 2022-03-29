@@ -21,7 +21,7 @@ class DBGenerator():
     def genUsers(self):
         usernames = ["Kacper", "Bartek", "Ola", "Karolina", "Kasia", "Natalia", "Krzysztof", "Jan"]
         for user in usernames:
-            user = User(username=user, email=user+"@gmail.com", password_hash="###")
+            user = User(username=user, email=user+"@gmail.com", password_hash="$2b$12$S7zEm.HCaGlrMyy5uJDpF.Zp45TOyGOKZQm6Je/6dLdCSV5R5il3e")
             self.users.append(user)
             self.db.session.add(user)
         self.db.flsuh()

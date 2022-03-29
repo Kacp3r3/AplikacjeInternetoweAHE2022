@@ -5,14 +5,14 @@ Monitor page
 {% endblock %}
 
 {% block content %}  
-<div class = "text-center"><h1>Monitor page </h1></div>
+<div class = "text-center"><h1>Monitor page</h1></div>
             <!-- Your rows inside the table HERE: -->
             <div class ="container">
                 <div class="row">
-                {% set cnt = namespace(value=0) %}
+                {% set cnt = namespace(value=0, cols=4) %}
                 {% for key, val in measurements.items() %}
                     <div class="col-sm">
-                      <div class="card bg-success mb-3 text-center text-white" style="width: 18rem;">
+                      <div class="card bg-success mb-3 text-center text-white" style="width: 15rem;">
                           <div class="card-body">
                             <h5 class="card-title">{{ key }}</h5>
                             <p class="card-text">Temperature: <br> <b>{{ val.temperature }}</b> <br> Humidity: <br> <b>{{ val.humidity }}</b></p>
@@ -23,9 +23,11 @@ Monitor page
                     </div>
                     {% set cnt.value = cnt.value + 1 %}
                 {% endfor %}
-                {% if cnt.value%3 != 0 %}
-                <div class="col-sm">
-                </div>
+                {% if cnt.value%cnt.cols != 0 %}
+                  {% for i in range(cnt.cols - cnt.value%cnt.cols) %}
+                  <div class="col-sm" style="width: 12rem;">
+                  </div>
+                  {% endfor %}
                 {% endif %}
                 </div>
             </div>

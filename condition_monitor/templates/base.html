@@ -14,29 +14,38 @@
    <body>
       <!-- Navbar here -->
       <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Kacper Sawicki</a>
+        <a class="navbar-brand" href="#">Condition Monitor</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <li class="nav-item {% if request.path == url_for('home_page') %} active {% endif %}">
                     <a class="nav-link" href="{{ url_for('home_page') }}">Home <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.path == url_for('monitor_page') %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('monitor_page') }}">Monitor</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.path == url_for('tables_page') %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('tables_page') }}">Tables</a>
                 </li>
             </ul>
             <ul class="navbar-nav">
+                {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Login</a>
+                    <span class="nav-link">Welcome {{ current_user.username }}</span>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.path == url_for('logout_page') %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('logout_page') }}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item {% if request.path == url_for('login_page') %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+                </li>
+                <li class="nav-item {% if request.path == url_for('register_page') %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('register_page') }}">Register</a>
                 </li>
+                {% endif %}
             </ul>
         </div>
     </nav>
