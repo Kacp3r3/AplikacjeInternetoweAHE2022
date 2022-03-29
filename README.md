@@ -158,12 +158,12 @@ Projekt aplikacji posiadającej:
 - Konta użytkowników z różnymi prawami (np. Admin/Moderator/User/Guest)
 - Zarządzanie przez Admina pozostałymi użytkownikami/zasobami
   (np. Admin przyznajde dostęp innym użytkownikom dostęp do podglądania wyników pomiarów temperatury z danej sali)
-- Wylgąd i responsywność aplikacji: TBA
+- Responsywny interfejs napisany w Bootstrap'ie
 - ... TBA
 
-Ilość osób w grupie: TBA  
-Sposób przedstawiania: TBA  
-Termin: TBA  
+Ilość osób w grupie: 2-3  
+Sposób przedstawiania: Krótka prezentacja  
+Termin: 14 Czerwca 2022 stacjonarnie  
 
 
 ## 6. Przydatne linki i źródła
