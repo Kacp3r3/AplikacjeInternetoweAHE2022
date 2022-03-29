@@ -37,6 +37,12 @@ class DBConnection(metaclass=Singleton):
     
     def getLastMeasurementForRoom(self, id):
         return self.session.query(Measurement).filter(Measurement.roomid == id).order_by(Measurement.timestamp).first()
+    
+    def addUser(self, user):
+        self._engine.session.add(user)
+    
+    def addRoom(self, room):
+        self._engine.session.add(room)
 
 class Room(db.Model):
     __tablename__ = "rooms"

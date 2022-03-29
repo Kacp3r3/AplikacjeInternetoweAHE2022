@@ -16,7 +16,7 @@ def home_page():
 @app.route("/monitor")
 @login_required
 def monitor_page():
-    rooms = db.getRoomsForUser(1)
+    rooms = db.getRoomsForUser(current_user.id)
     measurements = {}
     for room in rooms:
         measurements[room.name] = db.getLastMeasurementForRoom(room.id)
@@ -44,10 +44,10 @@ def tables_page():
         measurements[room.name] = db.getMeasurementsForRoom(room.id)
     return render_template("tables.html", measurements = measurements)
 
-@app.route("/tables/<roomid>")
+@app.route("/tables/<roomname>")
 @login_required
-def tables_page_room(roomid):
-    room = db.getRoom(roomid)
+def tables_page_room(roomname):
+    room = db.getRoom(roomname)
     measurements = {}
     if room != None:
         measurements[room.name] = db.getMeasurementsForRoom(room.id)

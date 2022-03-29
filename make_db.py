@@ -2,6 +2,7 @@ from condition_monitor.models import *
 import random
 import datetime
 import time
+
 class DBGenerator():
     def __init__(self):
         self.db = DBConnection()
@@ -23,7 +24,8 @@ class DBGenerator():
         for user in usernames:
             user = User(username=user, email=user+"@gmail.com", password_hash="$2b$12$S7zEm.HCaGlrMyy5uJDpF.Zp45TOyGOKZQm6Je/6dLdCSV5R5il3e")
             self.users.append(user)
-            self.db.session.add(user)
+            #self.db.session.add(user)
+            self.db.addUser(user)
         self.db.flsuh()
 
     def genRooms(self):
@@ -35,7 +37,8 @@ class DBGenerator():
                     for j in [1,2,3,4]:
                         room = Room(name=letter+str(floor+1)+str(d)+str(j))
                         self.rooms.append(room)
-                        self.db.session.add(room)
+                        #self.db.session.add(room)
+                        self.db.addRoom(room)
         self.db.flsuh()
 
     def genAccesses(self):
