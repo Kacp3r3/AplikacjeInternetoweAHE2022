@@ -60,15 +60,8 @@ class User(db.Model, UserMixin):
     def password(self, plain_text_password):
         self.password_hash = bcrypt.generate_password_hash(plain_text_password).decode('utf-8')
 
-    # @property
-    # def is_active(self):
-    #     return self.active
-
     def check_password_correction(self, attempted_password):
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
-
-    # def get_id(self):
-    #     return self.id
 
 class Access(db.Model):
     __tablename__ = "accesses"
