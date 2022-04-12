@@ -29,6 +29,11 @@
                 <li class="nav-item {% if request.path == url_for('tables_page') %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('tables_page') }}">Tables</a>
                 </li>
+                {% if current_user.is_authenticated and current_user.role() == "ADMIN" %}
+                    <li class="nav-item {% if request.path == url_for('admin_panel') %}active{% endif %}">
+                        <a class="nav-link" href="{{ url_for('admin_panel') }}">Admin Panel</a>
+                    </li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav">
                 {% if current_user.is_authenticated %}

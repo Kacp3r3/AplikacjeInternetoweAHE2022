@@ -21,11 +21,20 @@ class DBConnection(metaclass=Singleton):
         Session = self._engine.session
         self.session = Session
     
-    def flsuh(self):
+    def flush(self):
         self.session.commit()
+
+    def fetchUsers(self):
+        return self.session.query(User).all()
+    
+    def fetchRooms(self):
+        return self.session.query(Room).all()
 
     def getRoom(self, name):
         return self.session.query(Room).filter(Room.name == name).first()
+    
+    def getUser(self, name):
+        return self.session.query(User).filter(User.username == name).first()
 
     def getRoomsForUser(self, id):
         access = self.session.query(Access).filter(Access.userid == id).all()
@@ -33,10 +42,13 @@ class DBConnection(metaclass=Singleton):
         return self.session.query(Room).filter(Room.id.in_(ids)).all()
 
     def getMeasurementsForRoom(self, id):
-        return self.session.query(Measurement).filter(Measurement.roomid == id).all()
+        return self.session.query(Measurement).filter(Measurement.roomid == id).order_by(Measurement.timestamp).all()
     
     def getLastMeasurementForRoom(self, id):
         return self.session.query(Measurement).filter(Measurement.roomid == id).order_by(Measurement.timestamp).first()
+
+    def getRoleName(self, id):
+        return self.session.query(UserRole).filter(UserRole.id == id).first().name
     
     def addUser(self, user):
         self._engine.session.add(user)
@@ -44,11 +56,23 @@ class DBConnection(metaclass=Singleton):
     def addRoom(self, room):
         self._engine.session.add(room)
 
+    def grantAccess(self, user, room):
+        self._engine.session.add(Access(userid = self.getUser(user).id, roomid = self.getRoom(room).id))
+
 class Room(db.Model):
     __tablename__ = "rooms"
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(10), unique=True, nullable=False)
     description = db.Column(db.String(100))
+
+class UserRole(db.Model):
+    BASIC = "BASIC"
+    ADMIN = "ADMIN"
+    __tablename__ = "roles"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    user = db.relationship('User', backref=db.backref('users'))
+
 
 class User(db.Model, UserMixin):
     __tablename__ = "users"
@@ -57,6 +81,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(50), nullable = False, unique = True)
     password_hash = db.Column(db.String(60), nullable = False)
     active = db.Column(db.Boolean(), nullable = False, default = True)
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
 
     @property
     def password(self):
@@ -68,6 +93,9 @@ class User(db.Model, UserMixin):
 
     def check_password_correction(self, attempted_password):
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
+    
+    def role(self):
+        return DBConnection().getRoleName(self.role_id)
 
 class Access(db.Model):
     __tablename__ = "accesses"
@@ -76,6 +104,7 @@ class Access(db.Model):
     user = db.relationship('User', backref=db.backref('accesses', cascade="all, delete"))
     roomid = db.Column(db.Integer, db.ForeignKey("rooms.id", ondelete='CASCADE'), nullable = False)
     room = db.relationship('Room', backref=db.backref('accesses', cascade="all, delete"))
+    __table_args__ = (db.UniqueConstraint('userid', 'roomid', name='room_user_uc'),)
 
 class Measurement(db.Model):
     __tablename__ = "measurements"

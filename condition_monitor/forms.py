@@ -1,7 +1,8 @@
+from secrets import choice
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
-from condition_monitor.models import User
+from condition_monitor.models import DBConnection, User
 
 class RegisterForm(FlaskForm):
     def validate_username(self, username_to_check):
@@ -24,3 +25,9 @@ class LoginForm(FlaskForm):
     username = StringField(label='User Name:', validators=[DataRequired()])
     password = PasswordField(label='Password:', validators=[DataRequired()])
     submit = SubmitField(label='Sign in')
+
+class UserAccessForm(FlaskForm):
+    #user_ids = [x.id for x in DBConnection.fetchUsers()]
+    user = SelectField("User", validators=[DataRequired()], choices = [ x.username for x in DBConnection().fetchUsers()])
+    room = SelectField("Room", validators=[DataRequired()], choices = [ x.name for x in DBConnection().fetchRooms()])
+    submit = SubmitField("Grant access")

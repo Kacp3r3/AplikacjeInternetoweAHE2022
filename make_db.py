@@ -14,19 +14,28 @@ class DBGenerator():
         self.db._engine.create_all()
 
     def genDB(self):
+        self.genUserRoles()
         self.genUsers()
         self.genRooms()
         self.genAccesses()
         self.genMeasurements()
 
+    def genUserRoles(self):
+        self.db.session.add(UserRole(id=1, name=UserRole.BASIC))
+        self.db.session.add(UserRole(id=2, name=UserRole.ADMIN))
+        self.db.flush()
+
+
     def genUsers(self):
-        usernames = ["Kacper", "Bartek", "Ola", "Karolina", "Kasia", "Natalia", "Krzysztof", "Jan"]
+        usernames = ["Bartek", "Ola", "Karolina", "Kasia", "Natalia", "Krzysztof", "Jan"]
+        admin = User(username="Kacper", email="Kacper@gmail.com", password_hash="$2b$12$S7zEm.HCaGlrMyy5uJDpF.Zp45TOyGOKZQm6Je/6dLdCSV5R5il3e", role_id = 2)
+        self.db.addUser(admin)
+        self.users.append(admin)
         for user in usernames:
-            user = User(username=user, email=user+"@gmail.com", password_hash="$2b$12$S7zEm.HCaGlrMyy5uJDpF.Zp45TOyGOKZQm6Je/6dLdCSV5R5il3e")
+            user = User(username=user, email=user+"@gmail.com", password_hash="$2b$12$S7zEm.HCaGlrMyy5uJDpF.Zp45TOyGOKZQm6Je/6dLdCSV5R5il3e", role_id = 1)
             self.users.append(user)
-            #self.db.session.add(user)
             self.db.addUser(user)
-        self.db.flsuh()
+        self.db.flush()
 
     def genRooms(self):
         room_letters = ["A","B"]
@@ -37,9 +46,8 @@ class DBGenerator():
                     for j in [1,2,3,4]:
                         room = Room(name=letter+str(floor+1)+str(d)+str(j))
                         self.rooms.append(room)
-                        #self.db.session.add(room)
                         self.db.addRoom(room)
-        self.db.flsuh()
+        self.db.flush()
 
     def genAccesses(self):
         for user in self.users:
@@ -48,8 +56,9 @@ class DBGenerator():
                 randomid = -1
                 while randomid in selected_ids:
                     randomid = self.rooms[random.randint(0, len(self.rooms)-1)].id
+                selected_ids.append(randomid)
                 self.db.session.add(Access(userid=user.id, roomid = randomid))
-        self.db.flsuh()
+        self.db.flush()
 
     def genMeasurements(self):
         time_now = datetime.datetime.now()
@@ -60,7 +69,7 @@ class DBGenerator():
             while time_curr < time_now:
                 self.db.session.add(Measurement(roomid = room.id, temperature = int(random.gauss(15,10)), humidity = int(random.gauss(50,15)), timestamp = time_curr))
                 time_curr += datetime.timedelta(minutes=80)
-        self.db.flsuh()
+        self.db.flush()
 
 if __name__ == "__main__":
     generator = DBGenerator()

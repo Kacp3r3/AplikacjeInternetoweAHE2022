@@ -1,5 +1,5 @@
 from flask import redirect, render_template, url_for, flash
-from condition_monitor.forms import RegisterForm, LoginForm
+from condition_monitor.forms import RegisterForm, LoginForm, UserAccessForm
 from condition_monitor.models import Room, Access, User
 from condition_monitor import app
 from condition_monitor.models import DBConnection
@@ -19,8 +19,11 @@ def monitor_page():
     rooms = db.getRoomsForUser(current_user.id)
     measurements = {}
     for room in rooms:
-        measurements[room.name] = db.getLastMeasurementForRoom(room.id)
-    print(measurements)
+        ms = db.getMeasurementsForRoom(room.id)
+        measurements[room.name] = {}
+        measurements[room.name]["temp"] = [ x.temperature for x in ms]
+        measurements[room.name]["hum"] = [ x.humidity for x in ms]
+        measurements[room.name]["timestamp"] = [ x.timestamp.strftime("%m-%d %H:%M:%S") for x in ms]
     return render_template("monitor.html", measurements = measurements)
 
 @app.route("/monitor/<uid>")
@@ -31,7 +34,6 @@ def monitor_page_user(uid):
     if rooms != None:
         for room in rooms:
             measurements[room.name] = db.getLastMeasurementForRoom(room.id)
-    print(measurements)
     return render_template("monitor.html", measurements = measurements)
 
 
@@ -43,6 +45,23 @@ def tables_page():
     for room in rooms:
         measurements[room.name] = db.getMeasurementsForRoom(room.id)
     return render_template("tables.html", measurements = measurements)
+
+@app.route("/admin_panel", methods=["GET", "POST"])
+@login_required
+def admin_panel():
+    grantForm = UserAccessForm()
+    if current_user.role() == "ADMIN":
+        if grantForm.validate_on_submit():
+            if not db.getRoom(grantForm.room.data) in db.getRoomsForUser(db.getUser(grantForm.user.data).id):
+                db.grantAccess(grantForm.user.data, grantForm.room.data)
+                db.flush()
+                flash(f"Succesfuly grantet acces to room {grantForm.room.data} to user {grantForm.user.data}", category="success")
+            else:
+                flash(f"User {grantForm.user.data} already have accesss to room {grantForm.room.data}", category="danger")
+        return render_template("admin_panel.html", form = grantForm)
+    else:
+        flash("You are not administrator of this service!", category="danger")
+        return redirect(url_for("home_page"))
 
 @app.route("/tables/<roomname>")
 @login_required

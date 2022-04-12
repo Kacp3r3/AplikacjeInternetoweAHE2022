@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title%}
+Panel administracyjny
+{% endblock %}
+
+{% block content%}
+<div class="container">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <h1>Please create your account</h1>
+        <br>
+        {{ form.user.label() }}
+        {{ form.user(placeholder="User name") }}
+        <br>
+        {{ form.room.label() }}
+        {{ form.room(placeholder="Email") }}
+        <br>
+        {{ form.submit() }}
+    </form>
+</div>
+{% endblock %}

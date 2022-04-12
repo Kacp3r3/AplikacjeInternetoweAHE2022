@@ -11,13 +11,21 @@ Monitor page
                 <div class="row">
                 {% set cnt = namespace(value=0, cols=4) %}
                 {% for key, val in measurements.items() %}
+                {% include "includes/temperature_modal.html" %}
+                {% include "includes/humidity_modal.html" %}
                     <div class="col-sm">
                       <div class="card bg-success mb-3 text-center text-white" style="width: 15rem;">
                           <div class="card-body">
                             <h5 class="card-title">{{ key }}</h5>
-                            <p class="card-text">Temperature: <br> <b>{{ val.temperature }}</b> <br> Humidity: <br> <b>{{ val.humidity }}</b></p>
-                            <a href="#" class="card-link">Card link</a>
-                            <a href="#" class="card-link">Another link</a>
+                            <div class="card-text">
+                              <div class="row justify-content-center">
+                                <div class="col">Temperature: <br> <b>{{ val.temperature }}</b></div>
+                                <div class="col"><button class="card-link btn btn-info btn-outline-dark" onclick="loadData('{{ key }}', {{ measurements[key]['timestamp']|safe }}, {{ measurements[key]['temp']|safe }})" data-toggle="modal" data-target="#chart_modal_temp_{{ key }}">Chart</button></div>
+                                <div class="w-100"></div>
+                                <div class="col">Humidity:<br> <b>{{ val.humidity }}</b></div>
+                                <div class="col"><button class="card-link btn btn-info btn-outline-dark" onclick="loadData('{{ key }}', {{ measurements[key]['timestamp']|safe }}, {{ measurements[key]['hum']|safe }}, true)" data-toggle="modal" data-target="#chart_modal_hum_{{ key }}">Chart</button></div>
+                              </div>
+                            </div>
                           </div>
                       </div>
                     </div>
@@ -31,4 +39,53 @@ Monitor page
                 {% endif %}
                 </div>
             </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+              function loadData(room, labels, values, x=false)
+              {
+                var ctx = null;
+                var lbl = "Temperature"
+                if (x) 
+                {
+                  ctx = document.getElementById('hum'+room).getContext('2d');
+                  lbl = "Humidity"
+                }
+                else ctx = document.getElementById('temp'+room).getContext('2d');
+                
+                const myChart = new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                      labels: labels,
+                      datasets: [{
+                          label: lbl,
+                          data: values,
+                          backgroundColor: [
+                              'rgba(255, 99, 132, 0.2)',
+                              'rgba(54, 162, 235, 0.2)',
+                              'rgba(255, 206, 86, 0.2)',
+                              'rgba(75, 192, 192, 0.2)',
+                              'rgba(153, 102, 255, 0.2)',
+                              'rgba(255, 159, 64, 0.2)'
+                          ],
+                          borderColor: [
+                              'rgba(255, 99, 132, 1)',
+                              'rgba(54, 162, 235, 1)',
+                              'rgba(255, 206, 86, 1)',
+                              'rgba(75, 192, 192, 1)',
+                              'rgba(153, 102, 255, 1)',
+                              'rgba(255, 159, 64, 1)'
+                          ],
+                          borderWidth: 1
+                      }]
+                  },
+                  options: {
+                      scales: {
+                          y: {
+                              beginAtZero: true
+                          }
+                      }
+                  }
+              });
+              } 
+            </script>
 {% endblock %}   
