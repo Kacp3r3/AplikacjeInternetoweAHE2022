@@ -1,11 +1,13 @@
-from flask import redirect, render_template, url_for, flash
+from flask import redirect, render_template, url_for, flash, request
 from condition_monitor.forms import RegisterForm, LoginForm, UserAccessForm
 from condition_monitor.models import Room, Access, User
-from condition_monitor import app
+from condition_monitor import app, httpAuth
 from condition_monitor.models import DBConnection
 from condition_monitor.models import User
 from flask_login import login_user, logout_user, login_required, current_user
+
 db = DBConnection()
+
 
 @app.route("/")
 @app.route("/home")
@@ -36,6 +38,13 @@ def monitor_page_user(uid):
             measurements[room.name] = db.getLastMeasurementForRoom(room.id)
     return render_template("monitor.html", measurements = measurements)
 
+
+@app.route("/measurements", methods = ["POST"])
+@httpAuth.login_required
+def measurement():
+    temp = request.form.get("temperature")
+    print(temp)
+    return ""
 
 @app.route("/tables")
 @login_required

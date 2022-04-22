@@ -1,5 +1,13 @@
-from condition_monitor import db, bcrypt, login_manager
+from condition_monitor import db, bcrypt, login_manager, httpAuth
 from flask_login import UserMixin
+
+
+@httpAuth.verify_password
+def verify_password(username, password):
+    user = User.query.filter_by(username = username).first()
+    if not user or not user.check_password_correction(password):
+        return False
+    return True
 
 @login_manager.user_loader
 def load_user(user_id):
